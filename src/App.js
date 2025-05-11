@@ -1,31 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from './supabaseClient';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Home from './components/Home';
+import Treatment from './components/Treatment';
+import Patients from './components/Patients';
 
 function App() {
-  const [patients, setPatients] = useState([]);
-
-  useEffect(() => {
-    const fetchPatients = async () => {
-      const { data, error } = await supabase.from('patients').select('*');
-      if (error) {
-        console.error('データ取得エラー:', error.message);
-      } else {
-        setPatients(data);
-        console.log('患者データ:', data);
-      }
-    };
-    fetchPatients();
-  }, []);
-
   return (
-    <div>
-      <h1>患者リスト</h1>
-      <ul>
-        {patients.map((patient) => (
-          <li key={patient.id}>{patient.name}（チーム: {patient.team}）</li>
-        ))}
-      </ul>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/patients" element={<Patients />} />
+        <Route path="/treatment/:patientId" element={<Treatment />} />
+      </Routes>
+    </Router>
   );
 }
 
