@@ -1,2 +1,8 @@
 # Node modules
 node_modules/
+
+# 環境変数ファイル
+.env
+.env.local
+.env.development
+.env.production
