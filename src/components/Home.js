@@ -1,18 +1,20 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-const Home = () => {
+function Home() {
   return (
-    <div className="home">
-      <h1>電子カルテアプリ</h1>
-      <p>患者リストや施術情報の管理を行います。</p>
-      <nav>
-        <ul>
-          <li><a href="/patients">患者リスト</a></li>
-          <li><a href="/treatment">施術入力</a></li>
-        </ul>
-      </nav>
+    <div>
+      <h2>ホームページ</h2>
+      <p>トップページにようこそ！</p>
+
+      {/* 患者一覧ページへのリンク */}
+      <button style={{ marginTop: '10px', padding: '8px 16px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+        <Link to="/patients" style={{ textDecoration: 'none', color: 'white' }}>
+          患者一覧へ移動
+        </Link>
+      </button>
     </div>
   );
-};
+}
 
 export default Home;

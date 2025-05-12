@@ -1,37 +1,40 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../supabaseClient';
+import { fetchPatients } from '../api/fetchPatients';
 
-function Patients() {
+const Patients = () => {
   const [patients, setPatients] = useState([]);
 
   useEffect(() => {
-    const fetchPatients = async () => {
-      const { data, error } = await supabase.from('patients').select('*');
-      if (error) {
-        console.error('データ取得エラー:', error.message);
-      } else {
-        setPatients(data);
-      }
+    const getPatients = async () => {
+      const data = await fetchPatients();
+      setPatients(data);
     };
-    fetchPatients();
+    getPatients();
   }, []);
 
   return (
     <div>
-      <h2>患者リスト</h2>
+      <h2>患者一覧</h2>
+
+      {/* 新規作成ボタン */}
+      <button>
+        <Link to="/treatment/new" style={{ textDecoration: 'none', color: 'white' }}>
+          患者新規作成
+        </Link>
+      </button>
+
       <ul>
         {patients.map((patient) => (
           <li key={patient.id}>
-            {patient.name}（チーム: {patient.team}）
-            <Link to={`/treatment/${patient.id}`}>
-              <button>施術を登録</button>
+            <Link to={`/treatment/${patient.id}`} style={{ textDecoration: 'none', color: 'blue' }}>
+              {patient.name}（チーム: {patient.team}）
             </Link>
           </li>
         ))}
       </ul>
     </div>
   );
-}
+};
 
 export default Patients;
