@@ -1,18 +1,30 @@
-import React from 'react';
-import { Route, Routes } from 'react-router-dom';
-import Home from './components/Home';
-import Patients from './components/Patients';
-import Treatment from './components/Treatment';
+import React, { useEffect, useState } from 'react';
+import { supabase } from './supabaseClient';
+import Login from './components/Login';
 
 function App() {
+  const [session, setSession] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+  }, []);
+
   return (
     <div>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/patients" element={<Patients />} />
-        <Route path="/treatment/new" element={<Treatment />} />
-        <Route path="/treatment/:patientId" element={<Treatment />} />
-      </Routes>
+      {session ? (
+        <div>
+          <p>ログイン中: {session.user.email}</p>
+          <button onClick={() => supabase.auth.signOut()}>ログアウト</button>
+        </div>
+      ) : (
+        <Login />
+      )}
     </div>
   );
 }
