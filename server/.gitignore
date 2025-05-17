@@ -1,0 +1,33 @@
+# Node.js 関連
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# バックエンド環境変数
+.env.server
+
+# ログファイル
+logs/
+*.log
+
+# デプロイ関連
+dist/
+build/
+
+# キャッシュフォルダ
+.cache/
+
+# PWA関連キャッシュ（もしバックエンド側で生成される場合）
+service-worker.js
+precache-manifest*.js
+
+# MacOSやIDEの設定ファイル
+.DS_Store
+.vscode/
+.idea/
+
+# その他一時ファイル
+*.swp
+*.swo
+*.tmp
+*.bak

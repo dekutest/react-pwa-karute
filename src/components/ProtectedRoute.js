@@ -1,33 +1,41 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { checkAuth } from '../utils/auth';
+import { supabase } from '../utils/supabaseClient';
 
 const ProtectedRoute = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(null);  // 初期値をnullに
   const navigate = useNavigate();
 
   useEffect(() => {
-    const verifyAuth = async () => {
+    const checkAuth = async () => {
       try {
-        const authenticated = await checkAuth();
-        if (!authenticated) {
-          alert('ログインが必要です');
-          navigate('/');
-        } else {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
           setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+          navigate('/');  // ログインページへリダイレクト
         }
       } catch (error) {
         console.error('認証チェックエラー:', error.message);
-        navigate('/');
+        setIsAuthenticated(false);
+        navigate('/');  // ログインページへリダイレクト
       }
     };
-    verifyAuth();
+    checkAuth();
   }, [navigate]);
 
-  if (!isAuthenticated) {
-    return <p>認証中...</p>; // 認証中は一時的に表示
+  // 認証状態がまだ確定していない場合
+  if (isAuthenticated === null) {
+    return <p>認証中...</p>;
   }
 
+  // 認証されていない場合
+  if (!isAuthenticated) {
+    return <p>ログインが必要です。</p>;
+  }
+
+  // 認証成功時に子コンポーネントを表示
   return children;
 };
 
