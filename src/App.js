@@ -1,19 +1,18 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Login from './components/Login';
-import AdminPanel from './components/AdminPanel';
-import CacheClearButton from './components/CacheClearButton';
+import Home from './pages/Home';
 
 function App() {
   return (
-    <BrowserRouter basename="/dekutest/react-pwa-karut">
+    <div>
+      <h1>電子カルテアプリ</h1>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/admin" element={<AdminPanel />} />
-        <Route path="*" element={<h2>404 Not Found</h2>} />
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<p>ページが見つかりません</p>} />
       </Routes>
-      <CacheClearButton />
-    </BrowserRouter>
+    </div>
   );
 }
 

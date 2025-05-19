@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import useAbility from '../hooks/useAbility';
 
 const PatientDetail = () => {
   const { id } = useParams();
@@ -12,6 +13,19 @@ const PatientDetail = () => {
   const [memo, setMemo] = useState('');
   const [treatmentName, setTreatmentName] = useState('');
   const [date, setDate] = useState('');
+  const [userId, setUserId] = useState(null);
+  const ability = useAbility(userId);
+
+  // ログインユーザーIDを取得
+  useEffect(() => {
+    const fetchUserId = async () => {
+      const { data: session } = await supabase.auth.getSession();
+      if (session?.user?.id) {
+        setUserId(session.user.id);
+      }
+    };
+    fetchUserId();
+  }, []);
 
   // 患者データと施術データを取得
   useEffect(() => {
@@ -31,7 +45,7 @@ const PatientDetail = () => {
 
     const fetchTreatments = async () => {
       const { data, error } = await supabase
-        .from('treatments')  // ← テーブル名を修正
+        .from('treatments')
         .select('*')
         .eq('patient_id', id)
         .order('date', { ascending: false });
@@ -56,7 +70,7 @@ const PatientDetail = () => {
     const practitionerName = session?.user?.user_metadata?.full_name || '匿名';
 
     const { error } = await supabase
-      .from('treatments')  // ← テーブル名を修正
+      .from('treatments')
       .insert([{
         patient_id: id,
         content: newTreatment,
@@ -92,6 +106,8 @@ const PatientDetail = () => {
     }
   };
 
+  if (!ability) return <p>権限情報を取得中...</p>;
+
   return (
     <div>
       <h2>患者詳細</h2>
@@ -100,50 +116,54 @@ const PatientDetail = () => {
           <p>名前: {patient.name}</p>
           <p>患者ID: {patient.patient_id}</p>
           <h3>施術記録</h3>
-          <form onSubmit={handleSubmit}>
-            <label>施術名</label>
-            <input
-              type="text"
-              value={treatmentName}
-              onChange={(e) => setTreatmentName(e.target.value)}
-              placeholder="施術名"
-            />
-            <label>治療部位</label>
-            <input
-              type="text"
-              value={bodyPart}
-              onChange={(e) => setBodyPart(e.target.value)}
-              placeholder="治療部位"
-            />
-            <label>施術場所</label>
-            <input
-              type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="施術場所"
-            />
-            <label>施術日</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
-            <label>施術内容</label>
-            <textarea
-              value={newTreatment}
-              onChange={(e) => setNewTreatment(e.target.value)}
-              placeholder="施術内容"
-              rows={3}
-            />
-            <label>メモ</label>
-            <textarea
-              value={memo}
-              onChange={(e) => setMemo(e.target.value)}
-              placeholder="メモ"
-              rows={2}
-            />
-            <button type="submit">登録</button>
-          </form>
+
+          {/* 権限がある場合のみ施術登録フォームを表示 */}
+          {ability.can('create', 'Patient') && (
+            <form onSubmit={handleSubmit}>
+              <label>施術名</label>
+              <input
+                type="text"
+                value={treatmentName}
+                onChange={(e) => setTreatmentName(e.target.value)}
+                placeholder="施術名"
+              />
+              <label>治療部位</label>
+              <input
+                type="text"
+                value={bodyPart}
+                onChange={(e) => setBodyPart(e.target.value)}
+                placeholder="治療部位"
+              />
+              <label>施術場所</label>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="施術場所"
+              />
+              <label>施術日</label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
+              <label>施術内容</label>
+              <textarea
+                value={newTreatment}
+                onChange={(e) => setNewTreatment(e.target.value)}
+                placeholder="施術内容"
+                rows={3}
+              />
+              <label>メモ</label>
+              <textarea
+                value={memo}
+                onChange={(e) => setMemo(e.target.value)}
+                placeholder="メモ"
+                rows={2}
+              />
+              <button type="submit">登録</button>
+            </form>
+          )}
 
           <h4>施術記録一覧</h4>
           <ul>

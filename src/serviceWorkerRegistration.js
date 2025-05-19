@@ -1,43 +1,88 @@
-// サービスワーカーを登録する関数
-export function register() {
-  if ('serviceWorker' in navigator) {
+// serviceWorkerRegistration.js
+const isLocalhost = Boolean(
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '[::1]' ||
+  window.location.hostname.match(
+    /^127(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])){3}$/
+  )
+);
+
+export function register(config) {
+  if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
+    const publicUrl = new URL(process.env.PUBLIC_URL, window.location.href);
+    if (publicUrl.origin !== window.location.origin) {
+      return;
+    }
+
     window.addEventListener('load', () => {
       const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
-      navigator.serviceWorker
-        .register(swUrl)
-        .then((registration) => {
-          console.log('✅ Service Worker登録成功:', registration);
-        })
-        .catch((error) => {
-          console.error('❌ Service Worker登録失敗:', error);
+
+      if (isLocalhost) {
+        checkValidServiceWorker(swUrl, config);
+        navigator.serviceWorker.ready.then(() => {
+          console.log('Service Worker is running');
         });
+      } else {
+        registerValidSW(swUrl, config);
+      }
     });
   }
 }
 
-// サービスワーカーを解除する関数
+function registerValidSW(swUrl, config) {
+  navigator.serviceWorker
+    .register(swUrl)
+    .then((registration) => {
+      registration.onupdatefound = () => {
+        const installingWorker = registration.installing;
+        if (installingWorker == null) {
+          return;
+        }
+        installingWorker.onstatechange = () => {
+          if (installingWorker.state === 'installed') {
+            if (navigator.serviceWorker.controller) {
+              console.log('New content is available; please refresh.');
+            } else {
+              console.log('Content is cached for offline use.');
+            }
+          }
+        };
+      };
+    })
+    .catch((error) => {
+      console.error('Error during service worker registration:', error);
+    });
+}
+
+function checkValidServiceWorker(swUrl, config) {
+  fetch(swUrl, { headers: { 'Service-Worker': 'script' } })
+    .then((response) => {
+      if (
+        response.status === 404 ||
+        response.headers.get('content-type').indexOf('javascript') === -1
+      ) {
+        navigator.serviceWorker.ready.then((registration) => {
+          registration.unregister().then(() => {
+            window.location.reload();
+          });
+        });
+      } else {
+        registerValidSW(swUrl, config);
+      }
+    })
+    .catch(() => {
+      console.log('No internet connection found. App is running in offline mode.');
+    });
+}
+
 export function unregister() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-      registrations.forEach((registration) => {
+    navigator.serviceWorker.ready
+      .then((registration) => {
         registration.unregister();
-        console.log('🗑️ Service Worker解除:', registration);
+      })
+      .catch((error) => {
+        console.error(error.message);
       });
-    });
-  }
-}
-// ✅ サービスワーカーとキャッシュを完全クリア
-export function clearCacheAndSW() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-      registrations.forEach((registration) => registration.unregister());
-    });
-    caches.keys().then((names) => {
-      return Promise.all(
-        names.map((name) => caches.delete(name))
-      );
-    });
-    console.log('✅ キャッシュとサービスワーカーを完全クリアしました');
-    alert('キャッシュとサービスワーカーをクリアしました。ページをリロードしてください。');
   }
 }
