@@ -2,7 +2,8 @@
   "name": "react-pwa-karute",
   "version": "0.1.0",
   "private": true,
-  "homepage": ".",
+"homepage": "/dekutest/react-pwa-karut",
+
   "dependencies": {
     "@casl/ability": "^6.7.3",
     "@casl/react": "^5.0.0",
@@ -10,14 +11,14 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.0",
     "react-scripts": "^5.0.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^5.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "PORT=3001 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -50,5 +51,14 @@
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/dekutest/react-pwa-karute/issues"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.27.1",
+    "@babel/preset-env": "^7.27.2",
+    "@babel/preset-react": "^7.27.1",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.6.0",
+    "babel-loader": "^10.0.0",
+    "html-webpack-plugin": "^5.6.3",
+    "react-refresh": "^0.17.0"
   }
 }

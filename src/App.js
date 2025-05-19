@@ -1,16 +1,17 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Login from './components/Login';
 import Home from './pages/Home';
+import Login from './components/Login';
+import Callback from './components/Callback';
 
 function App() {
   return (
     <div>
-      <h1>電子カルテアプリ</h1>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/page/Home" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="*" element={<p>ページが見つかりません</p>} />
+        <Route path="/callback" element={<Callback />} />
       </Routes>
     </div>
   );
