@@ -20,7 +20,7 @@ const Patients = () => {
         <ul>
           {patients.map((patient) => (
             <li key={patient.id}>
-              <Link to={`/treatment/${patient.id}`}>{patient.name}（チーム: {patient.team}）</Link>
+              <Link to={`/patients/${patient.id}`}>{patient.name}（チーム: {patient.team}）</Link>
             </li>
           ))}
         </ul>

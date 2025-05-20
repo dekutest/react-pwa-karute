@@ -1,12 +1,8 @@
 // auth.js
-import { createClient } from '@supabase/supabase-js';
 import defineAbilitiesFor from '../config/abilities';
+import supabase from '../supabaseClient'; // ✅ 共通のものを使い回す
 
-// Supabaseクライアントの初期化
-const supabase = createClient(
-  process.env.REACT_APP_SUPABASE_URL,
-  process.env.REACT_APP_SUPABASE_ANON_KEY
-);
+
 
 // トークンを保存する関数
 export const saveAuthToken = (token) => {

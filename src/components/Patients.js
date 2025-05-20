@@ -18,16 +18,14 @@ const Patients = () => {
       <h2>患者一覧</h2>
 
       {/* 新規作成ボタン */}
-      <button>
-        <Link to="/treatment/new" style={{ textDecoration: 'none', color: 'white' }}>
-          患者新規作成
-        </Link>
-      </button>
+      <Link to="/patients/new">
+        <button>患者新規作成</button>
+      </Link>
 
       <ul>
         {patients.map((patient) => (
           <li key={patient.id}>
-            <Link to={`/treatment/${patient.id}`} style={{ textDecoration: 'none', color: 'blue' }}>
+            <Link to={`/patients/${patient.id}`}>
               {patient.name}（チーム: {patient.team}）
             </Link>
           </li>

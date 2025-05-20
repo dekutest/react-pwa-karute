@@ -1,19 +1,18 @@
-import React from 'react';
-import useAbility from '../hooks/useAbility';
+import { useMemo } from 'react';
+import defineAbilitiesFor from '../config/abilities'; // 権限定義ファイル
 
-const PatientDetail = ({ userId }) => {
-  const ability = useAbility(userId);
+export default function useAbility(userId) {
+  // userId が null のときは何もせず null を返す
+  return useMemo(() => {
+    if (!userId) return null;
 
-  if (!ability) return <p>権限情報を取得中...</p>;
+    // ここでロールを仮定（実際は Supabase から取得してもOK）
+    let role = 'member'; // デフォルト
 
-  return (
-    <div>
-      {ability.can('read', 'Patient') && <p>患者情報を表示できます。</p>}
-      {ability.can('update', 'Patient') && <button>患者情報を編集</button>}
-      {ability.can('create', 'Patient') && <button>患者を追加</button>}
-      {!ability.can('read', 'Patient') && <p>権限がありません。</p>}
-    </div>
-  );
-};
+    if (userId === 'admin-id') {
+      role = 'admin';
+    }
 
-export default PatientDetail;
+    return defineAbilitiesFor({ role });
+  }, [userId]);
+}

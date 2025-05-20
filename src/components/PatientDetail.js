@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { supabase } from '../supabaseClient';
+import supabase from '../supabaseClient';
 import useAbility from '../hooks/useAbility';
 
 const PatientDetail = () => {
@@ -14,52 +14,61 @@ const PatientDetail = () => {
   const [treatmentName, setTreatmentName] = useState('');
   const [date, setDate] = useState('');
   const [userId, setUserId] = useState(null);
+
+  // ログインユーザーIDを取得（Hookのルールを守って return の前に置く）
+useEffect(() => {
+  const fetchUserId = async () => {
+    const { data, error } = await supabase.auth.getSession();
+    const session = data?.session;
+
+    if (session?.user?.id) {
+      setUserId(session.user.id);
+    }
+  };
+  fetchUserId();
+}, []);
+
+
   const ability = useAbility(userId);
 
-  // ログインユーザーIDを取得
-  useEffect(() => {
-    const fetchUserId = async () => {
-      const { data: session } = await supabase.auth.getSession();
-      if (session?.user?.id) {
-        setUserId(session.user.id);
-      }
-    };
-    fetchUserId();
-  }, []);
+  // 患者データと施術データを取得（Hookのルールを守って return の前に置く）
+useEffect(() => {
+  const fetchPatient = async () => {
+    const { data, error } = await supabase
+      .from('patients')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-  // 患者データと施術データを取得
-  useEffect(() => {
-    const fetchPatient = async () => {
-      const { data, error } = await supabase
-        .from('patients')
-        .select('*')
-        .eq('id', id)
-        .single();
+    if (error) {
+      console.error('患者データ取得エラー:', error.message);
+    } else {
+      setPatient(data);
+    }
+  };
 
-      if (error) {
-        console.error('患者データ取得エラー:', error.message);
-      } else {
-        setPatient(data);
-      }
-    };
+  const fetchTreatments = async () => {
+    const { data, error } = await supabase
+      .from('treatments')
+      .select('*')
+      .eq('patient_id', id)
+      .order('date', { ascending: false });
 
-    const fetchTreatments = async () => {
-      const { data, error } = await supabase
-        .from('treatments')
-        .select('*')
-        .eq('patient_id', id)
-        .order('date', { ascending: false });
+    if (error) {
+      console.error('施術データ取得エラー:', error.message);
+    } else {
+      setTreatments(data);
+    }
+  };
 
-      if (error) {
-        console.error('施術データ取得エラー:', error.message);
-      } else {
-        setTreatments(data);
-      }
-    };
+  fetchPatient();
+  fetchTreatments();
+}, [id]);
 
-    fetchPatient();
-    fetchTreatments();
-  }, [id]);
+
+  if (!userId || !ability) {
+    return <p>読み込み中...</p>;
+  }
 
   // 施術登録処理
   const handleSubmit = async (e) => {
@@ -67,7 +76,7 @@ const PatientDetail = () => {
     if (newTreatment.trim() === '') return;
 
     const { data: session } = await supabase.auth.getSession();
-    const practitionerName = session?.user?.user_metadata?.full_name || '匿名';
+    const practitionerName = session?.session?.user?.user_metadata?.full_name || '匿名';
 
     const { error } = await supabase
       .from('treatments')
@@ -105,8 +114,8 @@ const PatientDetail = () => {
       setDate('');
     }
   };
+  console.log('ログイン中のユーザーID:', userId);
 
-  if (!ability) return <p>権限情報を取得中...</p>;
 
   return (
     <div>
@@ -114,10 +123,16 @@ const PatientDetail = () => {
       {patient && (
         <>
           <p>名前: {patient.name}</p>
-          <p>患者ID: {patient.patient_id}</p>
+          <p>患者ID: {patient.display_id}</p>
+
+          {ability.can('update', 'Patient') && (
+            <button onClick={() => alert('編集モードに入る処理を書く')}>
+              編集する
+            </button>
+          )}
+
           <h3>施術記録</h3>
 
-          {/* 権限がある場合のみ施術登録フォームを表示 */}
           {ability.can('create', 'Patient') && (
             <form onSubmit={handleSubmit}>
               <label>施術名</label>
