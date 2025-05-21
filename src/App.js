@@ -1,30 +1,55 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
-import Login from './components/Login';
-import Callback from './components/Callback';
-import PatientDetail from './components/PatientDetail'; // 👈 もしpagesじゃなくcomponentsにある場合
-// 👇この行が抜けてる
-import PatientList from './components/PatientList';
-import PatientCreate from './components/PatientCreate';
-
-
+import React, { useEffect, useState } from 'react'
+import { Routes, Route } from 'react-router-dom'
+import Home from './pages/Home'
+import Login from './components/Login'
+import Callback from './components/Callback'
+import PatientDetail from './components/PatientDetail'
+import PatientList from './components/PatientList'
+import PatientCreate from './components/PatientCreate'
+import { AbilityProvider } from './contexts/AbilityContext'
+import supabase from './supabaseClient'
 
 function App() {
-  return (
-    <div>
-<Routes>
-  <Route path="/" element={<Home />} />
-  <Route path="/page/Home" element={<Home />} />
-  <Route path="/patients" element={<PatientList />} />
-  <Route path="/patients/:id" element={<PatientDetail />} /> {/* 👈 これを追加！ */}
-  <Route path="/login" element={<Login />} />
-  <Route path="/callback" element={<Callback />} />
-<Route path="/patients/new" element={<PatientCreate />} />
-</Routes>
+  const [user, setUser] = useState(null)
 
-    </div>
-  );
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (user) {
+        // 仮のデータ（本番ではDBから取得）
+        const { data: userData } = await supabase
+          .from('users')
+          .select('role, team_ids') // team_ids: uuid配列（例 ['team-1', 'team-2']）
+          .eq('id', user.id)
+          .single()
+
+        setUser({
+          id: user.id,
+          role: userData.role,
+          teamIds: userData.team_ids || [],
+        })
+      }
+    }
+
+    fetchUser()
+  }, [])
+
+  return (
+    <AbilityProvider user={user}>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/page/Home" element={<Home />} />
+        <Route path="/patients" element={<PatientList />} />
+        <Route path="/patients/:id" element={<PatientDetail />} />
+        <Route path="/patients/new" element={<PatientCreate />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/callback" element={<Callback />} />
+      </Routes>
+    </AbilityProvider>
+  )
 }
 
-export default App;
+export default App

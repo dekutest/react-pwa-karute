@@ -18,15 +18,15 @@ const PatientDetail = () => {
   // ログインユーザーIDを取得（Hookのルールを守って return の前に置く）
 useEffect(() => {
   const fetchUserId = async () => {
-    const { data, error } = await supabase.auth.getSession();
-    const session = data?.session;
+    const { data } = await supabase.auth.getSession()
+    const session = data?.session
 
     if (session?.user?.id) {
-      setUserId(session.user.id);
+      setUserId(session.user.id)
     }
-  };
-  fetchUserId();
-}, []);
+  }
+  fetchUserId()
+}, [])
 
 
   const ability = useAbility(userId);
