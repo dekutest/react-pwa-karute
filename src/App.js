@@ -45,7 +45,7 @@ function App() {
         <Route path="/patients/new" element={<PatientCreate />} />
         <Route path="/patients/:id" element={<PatientDetail />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/callback" element={<Callback />} /> {/* ✅ ログイン後のリダイレクト先 */}
+        <Route path="/callback" element={<Callback />} />
       </Routes>
     </AbilityProvider>
   );

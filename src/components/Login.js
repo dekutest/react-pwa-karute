@@ -7,8 +7,12 @@ const Login = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dekutest/react-pwa-karut/callback`,
+          redirectTo: `${window.location.origin}/dekutest/react-pwa-karut/callback/`,
+          queryParams: {
+            prompt: 'select_account',
+          },
         },
+        flowType: 'pkce',
       });
       if (error) throw error;
       alert("ログイン処理中...");

@@ -7,15 +7,23 @@ const Callback = () => {
 
   useEffect(() => {
     const handleOAuthRedirect = async () => {
-      const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+      console.log('🔄 コールバック開始');
 
+      const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+
+      console.log('🔍 exchangeCodeForSession 結果:', data);
       if (error) {
-        console.error('セッション交換失敗:', error.message);
+        console.error('❌ セッション交換失敗:', error.message);
         navigate('/login');
         return;
       }
 
-      console.log('✅ セッション取得成功');
+      if (!data?.session) {
+        console.warn('⚠️ セッションが取得できませんでした（data.session is null）');
+      } else {
+        console.log('✅ セッション取得成功:', data.session);
+      }
+
       navigate('/');
     };
 
