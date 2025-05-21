@@ -1,18 +1,34 @@
-import { useMemo } from 'react';
-import defineAbilitiesFor from '../config/abilities'; // 権限定義ファイル
+import { useEffect, useState, useMemo } from 'react';
+import supabase from '../supabaseClient';
+import defineAbilitiesFor from '../config/abilities';
 
 export default function useAbility(userId) {
-  // userId が null のときは何もせず null を返す
-  return useMemo(() => {
-    if (!userId) return null;
+  const [role, setRole] = useState(null);
 
-    // ここでロールを仮定（実際は Supabase から取得してもOK）
-    let role = 'member'; // デフォルト
+  useEffect(() => {
+    const fetchRole = async () => {
+      if (!userId) return;
 
-    if (userId === 'admin-id') {
-      role = 'admin';
-    }
+      const { data, error } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', userId)
+        .single();
 
-    return defineAbilitiesFor({ role });
+      if (error) {
+        console.error('ロール取得エラー:', error.message);
+        return;
+      }
+
+      setRole(data.role);
+      console.log('取得したロール:', data.role)
+    };
+
+    fetchRole();
   }, [userId]);
+
+  return useMemo(() => {
+    if (!role) return null;
+    return defineAbilitiesFor({ role });
+  }, [role]);
 }

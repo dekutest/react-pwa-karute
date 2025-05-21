@@ -12,15 +12,19 @@ export const defineAbilitiesFor = (user) => {
       case 'admin':
         can('manage', 'all'); // 全ての操作が可能
         break;
-      case 'practitioner':
-        can('read', 'Patient'); // 患者データを読むことができる
-        can('update', 'Patient'); // 患者データを更新できる
-        can('create', 'Patient'); // 患者データを作成できる
-        break;
+case 'practitioner':
+  can('read', 'Patient'); // 閲覧のみ
+  break;
+
       case 'team_leader':
         can('read', 'Patient'); // 閲覧のみ可能
         cannot('update', 'Patient'); // 更新は不可
         break;
+        case 'staff':
+  can('read', 'Patient');
+  can('update', 'Patient');
+  can('create', 'Patient');
+  break;
       default:
         cannot('manage', 'all'); // それ以外はすべて不可
         break;
