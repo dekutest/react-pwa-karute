@@ -12,13 +12,17 @@ const Home = () => {
   const ability = useAbility();
 
   useEffect(() => {
-    const fetchUserInfo = async () => {
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabase.auth.getSession();
+    // 🔄 セッションイベント監視
+    supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🟢 Auth event:', event);
+      console.log('🟢 Session:', session);
+    });
 
-      if (sessionError || !session || !session.user) {
+    // 👤 ログインユーザー取得
+    const fetchUserInfo = async () => {
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+
+      if (userError || !userData?.user) {
         console.log('未ログイン状態です');
         setIsLoggedIn(false);
         setLoading(false);
@@ -26,12 +30,12 @@ const Home = () => {
       }
 
       setIsLoggedIn(true);
-      setUserEmail(session.user.email);
+      setUserEmail(userData.user.email);
 
       const { data, error } = await supabase
         .from('users')
         .select('role')
-        .eq('id', session.user.id)
+        .eq('id', userData.user.id)
         .single();
 
       if (error) {
@@ -55,8 +59,7 @@ const Home = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-redirectTo: 'https://react-pwa-karute.vercel.app/callback'
-
+        redirectTo: 'http://localhost:3001/', // ✅ ローカル確認用（Vercelに戻すときは変更）
       },
     });
 
@@ -88,11 +91,12 @@ redirectTo: 'https://react-pwa-karute.vercel.app/callback'
       <p>ログイン中: {userEmail}</p>
 
       {ability.can('update', 'Patient') && (
-        <button onClick={() => navigate('/patients')}>患者情報を編集する</button>
-      )}
-
-      {ability.can('update', 'Patient') && (
-        <button onClick={() => navigate('/patients')}>施術記録を入力する</button>
+        <>
+          <button onClick={() => navigate('/patients')}>患者情報を編集する</button>
+          <button onClick={() => navigate('/patients')} style={{ marginLeft: '10px' }}>
+            施術記録を入力する
+          </button>
+        </>
       )}
 
       {!ability.can('update', 'Patient') && (
