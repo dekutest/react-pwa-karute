@@ -103,9 +103,16 @@ const Home = () => {
         <p>閲覧専用モードです（編集不可）</p>
       )}
 
-      <div style={{ marginTop: '20px' }}>
-        <Link to="/patients">📋 患者一覧ページへ</Link>
-      </div>
+<div style={{ marginTop: '20px' }}>
+  <Link to="/patients">📋 患者一覧ページへ</Link>
+</div>
+
+{role === 'admin' && (
+  <Link to="/admin" className="text-red-500 underline ml-4">
+    管理者メニュー
+  </Link>
+)}
+
 
       <div style={{ marginTop: '40px' }}>
         <button onClick={handleLogin}>Googleでログイン</button>
